@@ -2,8 +2,8 @@ import { Disposable, QuickPick, window } from "vscode";
 import { ContextKey } from "../constants";
 import KeyListener, { KeybindingArgs } from "../keyListener";
 import { IStatusBar } from "../statusBar";
-import { executeCommands, setContext } from "../utils";
-import { BaseMenuItem, convertToMenuLabel } from "./menuItem";
+import { specializeBindingKey, executeCommands, setContext } from "../utils";
+import { BaseMenuItem } from "./menuItem";
 
 export class WhichKeyMenu {
     private statusBar: IStatusBar;
@@ -106,7 +106,7 @@ export class WhichKeyMenu {
         if (currentKey) {
             keyCombo = keyCombo.concat(currentKey);
         }
-        return keyCombo.map(convertToMenuLabel).join(' ');
+        return keyCombo.map(specializeBindingKey).join(' ');
     }
 
     private async onDidAccept() {
