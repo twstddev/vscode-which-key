@@ -1,13 +1,13 @@
 import { Disposable, QuickPick, window } from "vscode";
 import { ContextKey } from "../constants";
-import KeyListener, { KeybindingArgs } from "../keyListener";
+import { CommandRelay, KeybindingArgs } from "../commandRelay";
 import { IStatusBar } from "../statusBar";
 import { specializeBindingKey, executeCommands, setContext } from "../utils";
 import { BaseMenuItem } from "./menuItem";
 
 export class WhichKeyMenu {
     private statusBar: IStatusBar;
-    private keyListener: KeyListener;
+    private cmdRelay: CommandRelay;
     private items: BaseMenuItem[];
     private title?: string;
     private isTransient: boolean;
@@ -31,9 +31,9 @@ export class WhichKeyMenu {
     // This used to stored the last when condition from the key listener
     private when?: string;
 
-    constructor(statusBar: IStatusBar, keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, delay: number, title?: string) {
+    constructor(statusBar: IStatusBar, cmdRelay: CommandRelay, items: BaseMenuItem[], isTransient: boolean, delay: number, title?: string) {
         this.statusBar = statusBar;
-        this.keyListener = keyListener;
+        this.cmdRelay = cmdRelay;
         this.items = items;
         this.isTransient = isTransient;
         this.delay = delay;
@@ -44,7 +44,7 @@ export class WhichKeyMenu {
             this.reject = reject;
         });
         this.disposables = [
-            this.keyListener.onDidKeyPressed(this.onDidKeyPressed, this),
+            this.cmdRelay.onDidKeyPressed(this.onDidKeyPressed, this),
             this.quickPick.onDidChangeValue(this.onDidChangeValue, this),
             this.quickPick.onDidAccept(this.onDidAccept, this),
             this.quickPick.onDidHide(this.onDidHide, this)
@@ -240,10 +240,10 @@ export class WhichKeyMenu {
         this.quickPick.dispose();
     }
 
-    static show(statusBar: IStatusBar, keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, delay: number, title?: string) {
+    static show(statusBar: IStatusBar, cmdRelay: CommandRelay, items: BaseMenuItem[], isTransient: boolean, delay: number, title?: string) {
         return new Promise<void>(async (resolve) => {
             try {
-                const menu = new WhichKeyMenu(statusBar, keyListener, items, isTransient, delay, title);
+                const menu = new WhichKeyMenu(statusBar, cmdRelay, items, isTransient, delay, title);
                 await Promise.all([
                     setContext(ContextKey.Active, true),
                     menu.show()
