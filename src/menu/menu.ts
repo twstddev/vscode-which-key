@@ -65,6 +65,11 @@ export class WhichKeyMenu {
 
     private async onDidChangeValue(value: string, when?: string) {
         this.when = when;
+
+        if (value === this.enteredValue) {
+            return;
+        }
+
         if (this.timeoutId) {
             // When the menu is in the delay display mode
             if (value.startsWith(this.enteredValue)) {
